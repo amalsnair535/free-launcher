@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Soft Black Ambient Shadow for Depth -->
+    <path
+        android:fillColor="#80000000"
+        android:pathData="M33,31 h43 v8 h-43 z M33,45 h35 v8 h-35 z M33,59 h43 v8 h-43 z M33,73 h25 v8 h-25 z" />
+
+    <!-- Minimal Line 1 (Top Hero Bar) -->
+    <path
+        android:pathData="M32,30 h38 c2.2,0 4,1.8 4,4 v0 c0,2.2 -1.8,4 -4,4 h-38 c-2.2,0 -4,-1.8 -4,-4 v0 c0,-2.2 1.8,-4 4,-4 z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="74"
+                android:endY="38"
+                android:startX="28"
+                android:startY="30"
+                android:type="linear">
+                <item android:color="#FFFFFFFF" android:offset="0.0" />
+                <item android:color="#FFE5E5E5" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Focus Indicator Dot 1 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M78,34 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0" />
+
+    <!-- Minimal Line 2 (Middle App Bar) -->
+    <path
+        android:pathData="M32,44 h30 c2.2,0 4,1.8 4,4 v0 c0,2.2 -1.8,4 -4,4 h-30 c-2.2,0 -4,-1.8 -4,-4 v0 c0,-2.2 1.8,-4 4,-4 z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="66"
+                android:endY="52"
+                android:startX="28"
+                android:startY="44"
+                android:type="linear">
+                <item android:color="#FFF5F5F5" android:offset="0.0" />
+                <item android:color="#FFD4D4D4" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Minimal Line 3 (Lower App Bar) -->
+    <path
+        android:pathData="M32,58 h38 c2.2,0 4,1.8 4,4 v0 c0,2.2 -1.8,4 -4,4 h-38 c-2.2,0 -4,-1.8 -4,-4 v0 c0,-2.2 1.8,-4 4,-4 z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="74"
+                android:endY="66"
+                android:startX="28"
+                android:startY="58"
+                android:type="linear">
+                <item android:color="#FFFFFFFF" android:offset="0.0" />
+                <item android:color="#FFE5E5E5" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Focus Indicator Dot 3 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M78,62 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0" />
+
+    <!-- Minimal Line 4 (Bottom App Bar) -->
+    <path
+        android:pathData="M32,72 h22 c2.2,0 4,1.8 4,4 v0 c0,2.2 -1.8,4 -4,4 h-22 c-2.2,0 -4,-1.8 -4,-4 v0 c0,-2.2 1.8,-4 4,-4 z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="58"
+                android:endY="80"
+                android:startX="28"
+                android:startY="72"
+                android:type="linear">
+                <item android:color="#FFF5F5F5" android:offset="0.0" />
+                <item android:color="#FFA3A3A3" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

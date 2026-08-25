@@ -1,0 +1,6 @@
+{
+  "name": "FREE Launcher",
+  "description": "A minimalist, distraction-free Android launcher with customizable time card, news feed, productivity tools, fingerprint app lock, and 5 quick access apps.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,6 @@
+- [x] Update `namespace` and `applicationId` in `app/build.gradle.kts`
+- [x] Update activity references in `app/src/main/AndroidManifest.xml`
+- [x] Bulk update `package` declarations in all source files
+- [x] Bulk update internal `import` statements in all source files
+- [x] Physically move directory structure to `com/freelauncher/app/`
+- [x] Verify project sync and basic code structure integrity
