@@ -1,9 +1,7 @@
 # FREE Launcher
 A minimalist, distraction-free Android launcher with customizable time card, news feed, productivity tools, and bulk app pinning.
 
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+
 
 ## Features
 - **18 Smart Categories**: Auto-categorization of apps into Social, Shopping, Finance, etc.
