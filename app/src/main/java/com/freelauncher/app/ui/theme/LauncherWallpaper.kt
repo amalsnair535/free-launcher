@@ -2,12 +2,14 @@ package com.freelauncher.app.ui.theme
 
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.freelauncher.app.data.db.CustomWallpaperEntity
 
 enum class WallpaperCategory(val title: String) {
     MINIMAL_DARK("Minimal Dark"),
     GRADIENT_ELEGANT("Atmospheric Gradients"),
     LIGHT_EINK("Paper & Light"),
-    TRANSPARENT_GLASS("Frosted Glass & Glassmorphism")
+    TRANSPARENT_GLASS("Frosted Glass & Glassmorphism"),
+    CUSTOM("My Creations")
 }
 
 data class LauncherWallpaper(
@@ -110,6 +112,42 @@ data class LauncherWallpaper(
             brush = Brush.verticalGradient(listOf(Color(0xFF334155), Color(0xFF1E293B), Color(0xFF0F172A)))
         )
 
+        val SOLAR_FLARE = LauncherWallpaper(
+            id = "solar_flare",
+            name = "Solar Flare",
+            subtitle = "Radiant cosmic orange with deep ember glow",
+            category = WallpaperCategory.GRADIENT_ELEGANT,
+            colors = listOf(Color(0xFF7C2D12), Color(0xFF450A0A), Color(0xFF180303)),
+            isDark = true
+        )
+
+        val DEEP_SEA = LauncherWallpaper(
+            id = "deep_sea",
+            name = "Abyssal Trench",
+            subtitle = "Mysterious ocean depths with teal undertones",
+            category = WallpaperCategory.GRADIENT_ELEGANT,
+            colors = listOf(Color(0xFF164E63), Color(0xFF083344), Color(0xFF020617)),
+            isDark = true
+        )
+
+        val MIDNIGHT_ROSE = LauncherWallpaper(
+            id = "midnight_rose",
+            name = "Midnight Rose",
+            subtitle = "Sultry crimson gradients for quiet nights",
+            category = WallpaperCategory.GRADIENT_ELEGANT,
+            colors = listOf(Color(0xFF4C0519), Color(0xFF270211), Color(0xFF0F0108)),
+            isDark = true
+        )
+
+        val LUNAR_GREY = LauncherWallpaper(
+            id = "lunar_grey",
+            name = "Lunar Shadow",
+            subtitle = "Clean monochromatic grey for deep focus",
+            category = WallpaperCategory.GRADIENT_ELEGANT,
+            colors = listOf(Color(0xFF334155), Color(0xFF1E293B), Color(0xFF0F172A)),
+            isDark = true
+        )
+
         val ALL_WALLPAPERS: List<LauncherWallpaper> = listOf(
             OLED_VOID,
             MIDNIGHT_SLATE,
@@ -117,6 +155,10 @@ data class LauncherWallpaper(
             AURORA_EMERALD,
             SUNSET_AMBER,
             CYBER_NOIR,
+            SOLAR_FLARE,
+            DEEP_SEA,
+            MIDNIGHT_ROSE,
+            LUNAR_GREY,
             PAPER_PARCHMENT,
             NORDIC_MIST,
             FROSTED_GLASS
@@ -124,6 +166,19 @@ data class LauncherWallpaper(
 
         fun getById(id: String): LauncherWallpaper {
             return ALL_WALLPAPERS.find { it.id == id } ?: OLED_VOID
+        }
+
+        fun fromEntity(entity: CustomWallpaperEntity): LauncherWallpaper {
+            val colors = entity.colors.map { Color(it.toInt()) }
+            return LauncherWallpaper(
+                id = "custom_theme_${entity.id}",
+                name = entity.name,
+                subtitle = "User-created atmosphere",
+                category = WallpaperCategory.CUSTOM,
+                colors = colors,
+                isDark = entity.isDark,
+                brush = Brush.verticalGradient(colors)
+            )
         }
     }
 }

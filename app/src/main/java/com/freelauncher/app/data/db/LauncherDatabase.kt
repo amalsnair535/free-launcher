@@ -4,10 +4,20 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+class ColorListConverter {
+    @TypeConverter
+    fun fromList(list: List<Long>): String = list.joinToString(",")
+
+    @TypeConverter
+    fun toList(data: String): List<Long> = if (data.isEmpty()) emptyList() else data.split(",").map { it.toLong() }
+}
 
 @Database(
     entities = [
@@ -16,17 +26,20 @@ import kotlinx.coroutines.launch
         RssFeedEntity::class,
         RssArticleEntity::class,
         FocusSessionEntity::class,
-        LauncherSettingEntity::class
+        LauncherSettingEntity::class,
+        CustomWallpaperEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
+@TypeConverters(ColorListConverter::class)
 abstract class LauncherDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun calendarDao(): CalendarDao
     abstract fun rssDao(): RssDao
     abstract fun focusDao(): FocusDao
     abstract fun settingDao(): SettingDao
+    abstract fun customWallpaperDao(): CustomWallpaperDao
 
     companion object {
         @Volatile
@@ -39,6 +52,7 @@ abstract class LauncherDatabase : RoomDatabase() {
                     LauncherDatabase::class.java,
                     "free_launcher_database"
                 )
+                    .fallbackToDestructiveMigration() // Simple for dev, resets DB on version bump
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
@@ -112,6 +126,9 @@ abstract class LauncherDatabase : RoomDatabase() {
                                 )
                                 database.settingDao().setSetting(
                                     LauncherSettingEntity("theme_style", "oled_black")
+                                )
+                                database.settingDao().setSetting(
+                                    LauncherSettingEntity("wallpaper_id", "cyber_noir")
                                 )
                                 database.settingDao().setSetting(
                                     LauncherSettingEntity("show_monograms", "true")

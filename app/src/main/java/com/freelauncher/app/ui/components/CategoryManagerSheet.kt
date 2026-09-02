@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
@@ -45,7 +44,6 @@ import com.freelauncher.app.data.models.AppCategoryInfo
 import com.freelauncher.app.data.models.AppItem
 import com.freelauncher.app.ui.util.LauncherHaptics
 import com.freelauncher.app.ui.util.TrackScrollHaptics
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

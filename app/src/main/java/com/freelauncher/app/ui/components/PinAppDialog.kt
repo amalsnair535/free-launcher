@@ -113,13 +113,38 @@ fun PinAppDialog(
                 )
 
                 if (!isAlreadyPinned && pinnedCount >= maxSlots) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "All $maxSlots quick access slots are in use. Pinning will replace the 6th slot.",
-                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                        color = MaterialTheme.colorScheme.secondary,
-                        textAlign = TextAlign.Center
-                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "⚠️ Quick Access Full ($maxSlots/$maxSlots Pinned)",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                ),
+                                color = MaterialTheme.colorScheme.error,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Pinning this app will replace the last slot (#6).",
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
                 }
 
                 // Category Selection Section
@@ -269,7 +294,11 @@ fun PinAppDialog(
                         }
                     ) {
                         Text(
-                            text = if (isAlreadyPinned) "Unpin" else "Pin",
+                            text = when {
+                                isAlreadyPinned -> "Unpin"
+                                pinnedCount >= maxSlots -> "Pin (Replace #6)"
+                                else -> "Pin"
+                            },
                             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                         )
                     }

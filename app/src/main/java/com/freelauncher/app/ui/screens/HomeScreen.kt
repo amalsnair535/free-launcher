@@ -49,6 +49,7 @@ import kotlin.math.roundToInt
 @Composable
 fun HomeScreen(
     state: LauncherUiState,
+    currentTime: Date,
     onNavigate: (LauncherScreen) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -59,10 +60,10 @@ fun HomeScreen(
     onClockEditModeToggled: (Boolean) -> Unit = {},
 ) {
     val dateFormat = remember { SimpleDateFormat("EEEE, MMMM d", Locale.getDefault()) }
-    val dateText = remember(state.currentTime) { dateFormat.format(state.currentTime) }
-    val greetingText = remember(state.customGreeting, state.currentTime) {
+    val dateText = remember(currentTime) { dateFormat.format(currentTime) }
+    val greetingText = remember(state.customGreeting, currentTime) {
         if (state.customGreeting == "auto") {
-            getContextualGreeting(Calendar.getInstance().apply { time = state.currentTime })
+            getContextualGreeting(Calendar.getInstance().apply { time = currentTime })
         } else {
             state.customGreeting
         }
@@ -118,12 +119,12 @@ fun HomeScreen(
                             val threshold = 70f
                             if (abs(totalDragX) > abs(totalDragY)) {
                                 // Horizontal Swipe
-                                if (totalDragX > threshold) {
-                                    // Swiped Right -> Productivity screen
-                                    onNavigate(LauncherScreen.PRODUCTIVITY)
-                                } else if (totalDragX < -threshold) {
+                                if (totalDragX < -threshold && state.showNewsFeed) {
                                     // Swiped Left -> News Feed screen
                                     onNavigate(LauncherScreen.RSS_FEED)
+                                } else if (totalDragX > threshold) {
+                                    // Swiped Right -> Time Away screen
+                                    onNavigate(LauncherScreen.TIME_AWAY)
                                 }
                             }
                         }
@@ -154,7 +155,7 @@ fun HomeScreen(
     ) {
         // Edge gesture hints when not editing (Only shown if gesture hints setting is enabled)
         if (!isEditMode && state.showGestureHints) {
-            // Left hint: Productivity
+            // Left hint: Time Away Screen
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
@@ -165,15 +166,17 @@ fun HomeScreen(
                     .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f))
             )
             // Right hint: News Feed
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 6.dp)
-                    .width(3.dp)
-                    .height(28.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f))
-            )
+            if (state.showNewsFeed) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 6.dp)
+                        .width(3.dp)
+                        .height(28.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f))
+                )
+            }
         }
 
         // Top Edit Mode Header Badge & Drag Indicator
@@ -318,7 +321,7 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         MinimalistClock(
-                            currentTime = state.currentTime,
+                            currentTime = currentTime,
                             clockStyle = state.clockStyle,
                             modifier = Modifier.testTag("minimalist_clock")
                         )

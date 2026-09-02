@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.*
@@ -49,26 +50,22 @@ import androidx.compose.ui.layout.ContentScale
 @Composable
 fun SettingsSheet(
     currentClockStyle: ClockStyle,
-    currentTimeCardVAlign: TimeCardVerticalAlign = TimeCardVerticalAlign.CENTER,
-    currentTimeCardHAlign: TimeCardHorizontalAlign = TimeCardHorizontalAlign.CENTER,
-    currentTimeCardScale: Float = 1.0f,
     currentFont: LauncherFont,
     currentTheme: LauncherThemeMode,
     currentWallpaperId: String = "oled_void",
     customWallpaperUri: String? = null,
     showMonograms: Boolean,
     showGestureHints: Boolean = false,
+    showNewsFeed: Boolean = true,
     currentGreeting: String,
     isBiometricLockEnabled: Boolean = false,
     onClockStyleChanged: (ClockStyle) -> Unit,
-    onTimeCardVAlignChanged: (TimeCardVerticalAlign) -> Unit = {},
-    onTimeCardHAlignChanged: (TimeCardHorizontalAlign) -> Unit = {},
-    onTimeCardScaleChanged: (Float) -> Unit = {},
     onFontChanged: (LauncherFont) -> Unit,
     onThemeChanged: (LauncherThemeMode) -> Unit,
     onOpenWallpaperPicker: () -> Unit = {},
     onMonogramsToggled: (Boolean) -> Unit,
     onGestureHintsToggled: (Boolean) -> Unit = {},
+    onNewsFeedToggled: (Boolean) -> Unit = {},
     onGreetingChanged: (String) -> Unit,
     onBiometricLockToggled: (Boolean) -> Unit = {},
     onOpenCategoryManager: () -> Unit = {},
@@ -179,7 +176,7 @@ fun SettingsSheet(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.padding(vertical = 4.dp)
                     ) {
-                        items(ClockStyle.values()) { style ->
+                        items(ClockStyle.entries, key = { it.id }) { style ->
                             val isSelected = style == currentClockStyle
                             ClockStyleCard(
                                 style = style,
@@ -284,7 +281,7 @@ fun SettingsSheet(
                     subtitle = "Select canvas contrast and tone"
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        LauncherThemeMode.values().forEach { mode ->
+                        LauncherThemeMode.entries.forEach { mode ->
                             val isSelected = mode == currentTheme
                             val cardBg by animateColorAsState(
                                 targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
@@ -397,7 +394,7 @@ fun SettingsSheet(
                             .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        LauncherFont.values().forEach { font ->
+                        LauncherFont.entries.forEach { font ->
                             val isSelected = font == currentFont
                             FilterChip(
                                 selected = isSelected,
@@ -746,55 +743,129 @@ fun SettingsSheet(
                     subtitle = "Manage RSS news subscriptions"
                 ) {
                     MaterialYouCard {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    onDismiss()
-                                    onOpenRssManager()
-                                }
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Column {
+                            // News Feed On/Off Switch
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        LauncherHaptics.playClick(context)
+                                        onNewsFeedToggled(!showNewsFeed)
+                                    }
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(38.dp)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(MaterialTheme.colorScheme.primaryContainer),
-                                    contentAlignment = Alignment.Center
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                    modifier = Modifier.weight(1f)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.RssFeed,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        modifier = Modifier.size(20.dp)
-                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(38.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(
+                                                if (showNewsFeed) MaterialTheme.colorScheme.primaryContainer
+                                                else MaterialTheme.colorScheme.surfaceVariant
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.RssFeed,
+                                            contentDescription = null,
+                                            tint = if (showNewsFeed) MaterialTheme.colorScheme.onPrimaryContainer
+                                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                    Column {
+                                        Text(
+                                            text = "Enable News Feed",
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = if (showNewsFeed) "Swipe left on home to view RSS news" else "News feed disabled for maximum minimalism",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
                                 }
-                                Column {
-                                    Text(
-                                        text = "RSS News Feeds",
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
-                                        color = MaterialTheme.colorScheme.onSurface
+                                Switch(
+                                    checked = showNewsFeed,
+                                    onCheckedChange = {
+                                        LauncherHaptics.playClick(context)
+                                        onNewsFeedToggled(it)
+                                    },
+                                    modifier = Modifier.testTag("news_feed_toggle"),
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                                        checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
                                     )
-                                    Text(
-                                        text = "Add, remove, or customize RSS news feeds",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+
+                            if (showNewsFeed) {
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+
+                                // Manage Feeds Row
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            onDismiss()
+                                            onOpenRssManager()
+                                        }
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(38.dp)
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .background(MaterialTheme.colorScheme.primaryContainer),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Outlined.RssFeed,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                        Column {
+                                            Text(
+                                                text = "RSS News Feeds",
+                                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Text(
+                                                text = "Add, remove, or customize RSS news feeds",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.secondary
+                                            )
+                                        }
+                                    }
+                                    Icon(
+                                        imageVector = Icons.Outlined.ChevronRight,
+                                        contentDescription = "Open Feeds Manager",
+                                        tint = MaterialTheme.colorScheme.secondary,
+                                        modifier = Modifier.size(22.dp)
                                     )
                                 }
                             }
-                            Icon(
-                                imageVector = Icons.Outlined.ChevronRight,
-                                contentDescription = "Open Feeds Manager",
-                                tint = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.size(22.dp)
-                            )
                         }
                     }
                 }
@@ -863,7 +934,7 @@ fun SettingsSheet(
                                 }
                             }
                             Icon(
-                                imageVector = Icons.Outlined.OpenInNew,
+                                imageVector = Icons.AutoMirrored.Outlined.OpenInNew,
                                 contentDescription = "Open Home Settings",
                                 tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.size(20.dp)
@@ -891,7 +962,7 @@ fun SettingsSheet(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Version 1.0 • Digital Wellness & Focus",
+                        text = "Version 1.2 • Digital Wellness & Focus",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)
                     )
@@ -980,6 +1051,13 @@ fun ClockStyleCard(
     val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
 
+    // Pre-memoize formatters
+    val hMmFormat = remember { SimpleDateFormat("h:mm", Locale.getDefault()) }
+    val hFormat = remember { SimpleDateFormat("h", Locale.getDefault()) }
+    val mmFormat = remember { SimpleDateFormat("mm", Locale.getDefault()) }
+    val hMmAFormat = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
+    val hhMmFormat = remember { SimpleDateFormat("hh:mm", Locale.getDefault()) }
+
     Surface(
         modifier = Modifier
             .width(135.dp)
@@ -1007,7 +1085,7 @@ fun ClockStyleCard(
                 when (style) {
                     ClockStyle.LARGE_DIGITAL -> {
                         Text(
-                            text = SimpleDateFormat("h:mm", Locale.getDefault()).format(previewTime),
+                            text = hMmFormat.format(previewTime),
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Light,
                                 fontSize = 20.sp
@@ -1017,7 +1095,7 @@ fun ClockStyleCard(
                     }
                     ClockStyle.THIN_DIGITAL -> {
                         Text(
-                            text = SimpleDateFormat("h:mm", Locale.getDefault()).format(previewTime),
+                            text = hMmFormat.format(previewTime),
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.ExtraLight,
                                 letterSpacing = 1.sp,
@@ -1028,7 +1106,7 @@ fun ClockStyleCard(
                     }
                     ClockStyle.MONOSPACED -> {
                         Text(
-                            text = "[ ${SimpleDateFormat("h:mm", Locale.getDefault()).format(previewTime)} ]",
+                            text = "[ ${hMmFormat.format(previewTime)} ]",
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 13.sp
@@ -1039,12 +1117,12 @@ fun ClockStyleCard(
                     ClockStyle.MINIMAL_STACKED -> {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = SimpleDateFormat("h", Locale.getDefault()).format(previewTime),
+                                text = hFormat.format(previewTime),
                                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp),
                                 color = contentColor
                             )
                             Text(
-                                text = SimpleDateFormat("mm", Locale.getDefault()).format(previewTime),
+                                text = mmFormat.format(previewTime),
                                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Light, fontSize = 14.sp),
                                 color = contentColor
                             )
@@ -1064,14 +1142,14 @@ fun ClockStyleCard(
                     }
                     ClockStyle.COMPACT -> {
                         Text(
-                            text = SimpleDateFormat("h:mm a", Locale.getDefault()).format(previewTime),
+                            text = hMmAFormat.format(previewTime),
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Normal, fontSize = 13.sp),
                             color = contentColor
                         )
                     }
                     ClockStyle.ELEGANT_SERIF -> {
                         Text(
-                            text = SimpleDateFormat("hh:mm", Locale.getDefault()).format(previewTime),
+                            text = hhMmFormat.format(previewTime),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium, fontSize = 16.sp),
                             color = contentColor
                         )
@@ -1082,13 +1160,13 @@ fun ClockStyleCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = SimpleDateFormat("h", Locale.getDefault()).format(previewTime),
+                                text = hFormat.format(previewTime),
                                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                                 color = contentColor
                             )
                             Box(modifier = Modifier.size(4.dp).clip(CircleShape).background(contentColor))
                             Text(
-                                text = SimpleDateFormat("mm", Locale.getDefault()).format(previewTime),
+                                text = mmFormat.format(previewTime),
                                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                                 color = contentColor
                             )

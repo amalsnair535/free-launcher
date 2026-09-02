@@ -27,6 +27,7 @@ class LauncherRepository(
     private val rssDao = database.rssDao()
     private val focusDao = database.focusDao()
     private val settingDao = database.settingDao()
+    private val customWallpaperDao = database.customWallpaperDao()
 
     val allNotes: Flow<List<NoteEntity>> = noteDao.getAllNotes()
     val allEvents: Flow<List<CalendarEventEntity>> = calendarDao.getAllEvents()
@@ -38,6 +39,7 @@ class LauncherRepository(
         list.associate { it.key to it.value }
     }
     val allFocusSessions: Flow<List<FocusSessionEntity>> = focusDao.getAllSessions()
+    val allCustomWallpapers: Flow<List<CustomWallpaperEntity>> = customWallpaperDao.getAllCustomWallpapers()
 
     fun getDefaultCategories(): List<AppCategoryInfo> = listOf(
         AppCategoryInfo("COMMUNICATION", "COMMUNICATION", isCustom = false, isHidden = false, order = 0),
@@ -245,11 +247,6 @@ class LauncherRepository(
         }
     }
 
-    suspend fun getCategorizedApps(): Map<AppCategory, List<AppItem>> {
-        val pinned = getPinnedIds()
-        return appManager.getCategorizedApps(pinned)
-    }
-
     suspend fun getPinnedIds(): List<String> = withContext(Dispatchers.IO) {
         val raw = settingDao.getSettingValue("pinned_apps")
         if (raw == null) {
@@ -408,7 +405,18 @@ class LauncherRepository(
         settingDao.setSetting(LauncherSettingEntity(key, value))
     }
 
-    suspend fun getSetting(key: String, defaultValue: String): String = withContext(Dispatchers.IO) {
-        settingDao.getSettingValue(key) ?: defaultValue
+    // Custom Wallpapers
+    suspend fun saveCustomWallpaper(name: String, colors: List<Long>, isDark: Boolean) = withContext(Dispatchers.IO) {
+        customWallpaperDao.insertCustomWallpaper(
+            CustomWallpaperEntity(
+                name = name,
+                colors = colors,
+                isDark = isDark
+            )
+        )
+    }
+
+    suspend fun deleteCustomWallpaper(id: Long) = withContext(Dispatchers.IO) {
+        customWallpaperDao.deleteCustomWallpaperById(id)
     }
 }

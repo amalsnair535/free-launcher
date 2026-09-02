@@ -62,3 +62,13 @@ data class LauncherSettingEntity(
     val key: String,
     val value: String
 )
+
+@Entity(tableName = "custom_wallpapers")
+data class CustomWallpaperEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val name: String,
+    val colors: List<Long>, // List of color values (ULong/Long)
+    val isDark: Boolean = true,
+    val createdAt: Long = System.currentTimeMillis()
+)

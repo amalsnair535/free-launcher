@@ -90,3 +90,15 @@ interface SettingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun setSetting(setting: LauncherSettingEntity)
 }
+
+@Dao
+interface CustomWallpaperDao {
+    @Query("SELECT * FROM custom_wallpapers ORDER BY createdAt DESC")
+    fun getAllCustomWallpapers(): Flow<List<CustomWallpaperEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomWallpaper(wallpaper: CustomWallpaperEntity): Long
+
+    @Query("DELETE FROM custom_wallpapers WHERE id = :id")
+    suspend fun deleteCustomWallpaperById(id: Long)
+}

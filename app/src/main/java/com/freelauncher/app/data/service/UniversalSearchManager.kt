@@ -251,4 +251,18 @@ object UniversalSearchManager {
 
         return results
     }
+
+    fun getYouTubeSearchIntent(query: String): Intent {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse("vnd.youtube:results?search_query=${Uri.encode(query)}")
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        return intent
+    }
+
+    fun getYouTubeWebSearchIntent(query: String): Intent {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse("https://www.youtube.com/results?search_query=${Uri.encode(query)}")
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        return intent
+    }
 }

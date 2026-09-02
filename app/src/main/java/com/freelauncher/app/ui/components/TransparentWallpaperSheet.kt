@@ -40,11 +40,14 @@ import java.io.File
 fun TransparentWallpaperSheet(
     currentWallpaperId: String,
     customWallpaperUri: String?,
+    userWallpapers: List<LauncherWallpaper>,
     wallpaperDim: Float,
     onSelectWallpaper: (String) -> Unit,
     onSelectCustomWallpaperUri: (Uri) -> Unit,
     onRemoveCustomWallpaper: () -> Unit,
     onWallpaperDimChange: (Float) -> Unit,
+    onOpenCreator: () -> Unit,
+    onDeleteTheme: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var previewWallpaperId by remember { mutableStateOf(currentWallpaperId) }
@@ -64,8 +67,8 @@ fun TransparentWallpaperSheet(
     val filteredWallpapers = LauncherWallpaper.ALL_WALLPAPERS
 
     val isCustomActive = previewWallpaperId == "custom_gallery" && !customWallpaperUri.isNullOrBlank()
-    val activePreviewWallpaper = remember(previewWallpaperId) {
-        LauncherWallpaper.getById(previewWallpaperId)
+    val activePreviewWallpaper = remember(previewWallpaperId, userWallpapers) {
+        userWallpapers.find { it.id == previewWallpaperId } ?: LauncherWallpaper.getById(previewWallpaperId)
     }
 
     Dialog(
@@ -217,6 +220,42 @@ fun TransparentWallpaperSheet(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
+                        // Section 0: Create Your Own Atmosphere
+                        item(key = "theme_creator_card") {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .clickable { onOpenCreator() },
+                                shape = RoundedCornerShape(20.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.AutoAwesome,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                    Column {
+                                        Text(
+                                            text = "Atmosphere Creator",
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                        Text(
+                                            text = "Design your own personalized gradient",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
                         // Section 1: Choose from Phone Gallery
                         item(key = "gallery_picker_section") {
                             Surface(
@@ -394,6 +433,62 @@ fun TransparentWallpaperSheet(
                                                     )
                                                 }
                                             }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Section 2: User Created Wallpapers
+                        if (userWallpapers.isNotEmpty()) {
+                            item {
+                                Text(
+                                    text = "My Creations",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp, start = 4.dp)
+                                )
+                            }
+                            items(userWallpapers, key = { it.id }) { wallpaper ->
+                                val isSelected = previewWallpaperId == wallpaper.id
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(18.dp))
+                                        .border(
+                                            width = if (isSelected) 2.dp else 0.75.dp,
+                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
+                                            shape = RoundedCornerShape(18.dp)
+                                        )
+                                        .clickable {
+                                            previewWallpaperId = wallpaper.id
+                                            onSelectWallpaper(wallpaper.id)
+                                        },
+                                    shape = RoundedCornerShape(18.dp),
+                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(width = 68.dp, height = 76.dp)
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(wallpaper.brush),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            if (isSelected) {
+                                                Icon(Icons.Default.Check, "Selected", tint = Color.White)
+                                            }
+                                        }
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(text = wallpaper.name, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                                            Text(text = "Custom Theme", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+                                        }
+                                        IconButton(onClick = { onDeleteTheme(wallpaper.id) }) {
+                                            Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
                                         }
                                     }
                                 }

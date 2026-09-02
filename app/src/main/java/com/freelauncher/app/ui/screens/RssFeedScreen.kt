@@ -48,7 +48,8 @@ fun RssFeedScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 8.dp)
+            .statusBarsPadding()
+            .padding(top = 20.dp)
             .navigationBarsPadding()
             .pointerInput(Unit) {
                 detectDragGestures(

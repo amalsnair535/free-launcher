@@ -38,12 +38,14 @@ import com.freelauncher.app.ui.util.LauncherHaptics
 import com.freelauncher.app.ui.viewmodel.LauncherScreen
 import com.freelauncher.app.ui.viewmodel.LauncherUiState
 import kotlinx.coroutines.delay
+import java.util.Date
 import kotlin.math.abs
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SixAppsView(
     state: LauncherUiState,
+    currentTime: Date,
     onLaunchApp: (AppItem) -> Unit,
     onLongPressApp: (AppItem) -> Unit,
     onNavigate: (LauncherScreen) -> Unit,
@@ -74,8 +76,8 @@ fun SixAppsView(
 
     val hourFormat = remember { java.text.SimpleDateFormat("hh", java.util.Locale.getDefault()) }
     val minFormat = remember { java.text.SimpleDateFormat("mm", java.util.Locale.getDefault()) }
-    val hourString = remember(state.currentTime) { hourFormat.format(state.currentTime) }
-    val minString = remember(state.currentTime) { minFormat.format(state.currentTime) }
+    val hourString = remember(currentTime) { hourFormat.format(currentTime) }
+    val minString = remember(currentTime) { minFormat.format(currentTime) }
 
     // Auto-clear feedback message after 2.5s
     LaunchedEffect(state.pinnedLockFeedbackMessage) {
@@ -130,12 +132,12 @@ fun SixAppsView(
                                         onNavigate(LauncherScreen.ALL_APPS)
                                     }
                                 } else {
-                                    if (totalDragX > threshold) {
-                                        // Dragged right -> Productivity (Left screen)
-                                        onNavigate(LauncherScreen.PRODUCTIVITY)
-                                    } else if (totalDragX < -threshold) {
+                                    if (totalDragX < -threshold && state.showNewsFeed) {
                                         // Dragged left -> RSS Feed (Right screen)
                                         onNavigate(LauncherScreen.RSS_FEED)
+                                    } else if (totalDragX > threshold) {
+                                        // Dragged right -> Time Away (Left screen)
+                                        onNavigate(LauncherScreen.TIME_AWAY)
                                     }
                                 }
                             },

@@ -11,6 +11,7 @@ import android.provider.Settings
 import com.freelauncher.app.data.db.FocusSessionEntity
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -22,6 +23,21 @@ data class FocusDayUsageData(
     val screenTimeMinutes: Int,
     val isToday: Boolean,
     val focusSessionMinutes: Int = 0
+)
+
+data class LongestBreakData(
+    val dayLabel: String,
+    val minutes: Int
+)
+
+data class TimeAwayStats(
+    val todayPhoneFreeMinutes: Int,
+    val currentBreakMinutes: Int,
+    val todayLongestBreakMinutes: Int,
+    val weeklyPhoneFreePercentage: Int,
+    val totalWeeklyReclaimedMinutes: Int,
+    val weeklyHistory: List<FocusDayUsageData>,
+    val longestBreaksHistory: List<LongestBreakData>
 )
 
 object DigitalWellbeingService {
@@ -303,5 +319,175 @@ object DigitalWellbeingService {
 
         val total = (screenTimeScore + unlockScore + sessionBonus + mindfulBaseline).roundToInt()
         return total.coerceIn(1, 100)
+    }
+
+    const val DAILY_WAKING_MINUTES = 16 * 60 // 960 minutes (16 waking hours/day, assuming 8 hours sleep)
+    private const val WAKE_UP_HOUR = 7       // 7:00 AM
+    private const val SLEEP_HOUR = 23        // 11:00 PM
+
+    /**
+     * Calculates active waking minutes elapsed so far today (ignoring 8-hour sleep window 11 PM - 7 AM).
+     */
+    fun getElapsedWakingMinutesToday(): Int {
+        val cal = Calendar.getInstance()
+        val currentHour = cal.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = cal.get(Calendar.MINUTE)
+
+        return when {
+            currentHour < WAKE_UP_HOUR -> 0
+            currentHour >= SLEEP_HOUR -> DAILY_WAKING_MINUTES
+            else -> {
+                val hoursSinceWake = currentHour - WAKE_UP_HOUR
+                (hoursSinceWake * 60 + currentMinute).coerceIn(0, DAILY_WAKING_MINUTES)
+            }
+        }
+    }
+
+    /**
+     * Aggregates real-time statistics for the new "Time Away" dashboard.
+     */
+    fun getTimeAwayStats(
+        context: Context,
+        focusSessions: List<FocusSessionEntity>
+    ): TimeAwayStats {
+        val hasPermission = hasUsagePermission(context)
+        if (!hasPermission) {
+            return TimeAwayStats(
+                todayPhoneFreeMinutes = 0,
+                currentBreakMinutes = 0,
+                todayLongestBreakMinutes = 0,
+                weeklyPhoneFreePercentage = 0,
+                totalWeeklyReclaimedMinutes = 0,
+                weeklyHistory = emptyList(),
+                longestBreaksHistory = emptyList()
+            )
+        }
+
+        val weeklyHistory = getWeeklyStats(context, focusSessions)
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+
+        var todayPhoneFreeMinutes = 0
+        var currentBreakMinutes = 0
+        var todayLongestBreakMinutes = 0
+        var totalWeeklyReclaimedMinutes = 0
+        val longestBreaksHistory = mutableListOf<LongestBreakData>()
+
+        val now = System.currentTimeMillis()
+
+        // 1. Calculate today's reclaimed waking time (Elapsed waking time today - active screen time)
+        val today = weeklyHistory.lastOrNull()
+        if (today != null) {
+            val wakingMinutesSoFar = getElapsedWakingMinutesToday()
+            todayPhoneFreeMinutes = (wakingMinutesSoFar - today.screenTimeMinutes).coerceAtLeast(0)
+        }
+
+        // 2. Weekly total reclaimed waking time (Sum of waking phone-free time for each day)
+        totalWeeklyReclaimedMinutes = weeklyHistory.sumOf { day ->
+            if (day.isToday) todayPhoneFreeMinutes
+            else (DAILY_WAKING_MINUTES - day.screenTimeMinutes).coerceAtLeast(0)
+        }
+
+        // 3. Process Gaps for longest breaks and current break status during waking hours (7 AM - 11 PM)
+        if (usageStatsManager != null) {
+            for (i in 0..3) {
+                val wakingStart = Calendar.getInstance().apply {
+                    add(Calendar.DAY_OF_YEAR, -i)
+                    set(Calendar.HOUR_OF_DAY, WAKE_UP_HOUR)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+
+                val wakingEnd = Calendar.getInstance().apply {
+                    add(Calendar.DAY_OF_YEAR, -i)
+                    set(Calendar.HOUR_OF_DAY, SLEEP_HOUR)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+
+                val queryEnd = if (i == 0) now.coerceAtMost(wakingEnd) else wakingEnd
+
+                var longestGapOnDay = 0L
+                var lastScreenOffTime = -1L
+
+                if (queryEnd > wakingStart) {
+                    lastScreenOffTime = wakingStart
+
+                    val events = usageStatsManager.queryEvents(wakingStart, queryEnd)
+                    val event = UsageEvents.Event()
+
+                    while (events.hasNextEvent()) {
+                        events.getNextEvent(event)
+                        val eventTime = event.timeStamp.coerceIn(wakingStart, queryEnd)
+                        when (event.eventType) {
+                            UsageEvents.Event.SCREEN_INTERACTIVE,
+                            UsageEvents.Event.KEYGUARD_HIDDEN -> {
+                                if (lastScreenOffTime > 0L) {
+                                    val gap = eventTime - lastScreenOffTime
+                                    if (gap > longestGapOnDay) longestGapOnDay = gap
+                                    lastScreenOffTime = -1L
+                                }
+                            }
+                            UsageEvents.Event.SCREEN_NON_INTERACTIVE,
+                            UsageEvents.Event.KEYGUARD_SHOWN -> {
+                                lastScreenOffTime = eventTime
+                            }
+                            UsageEvents.Event.ACTIVITY_RESUMED -> {
+                                if (lastScreenOffTime == wakingStart) {
+                                    lastScreenOffTime = -1L
+                                }
+                            }
+                        }
+                    }
+
+                    if (lastScreenOffTime > 0L) {
+                        val finalGap = queryEnd - lastScreenOffTime
+                        if (finalGap > longestGapOnDay) longestGapOnDay = finalGap
+                    }
+                }
+
+                val dayLabel = when (i) {
+                    0 -> "Today"
+                    1 -> "Yesterday"
+                    else -> SimpleDateFormat("EEEE", Locale.getDefault()).format(Date(wakingStart))
+                }
+
+                val gapMins = (longestGapOnDay / (1000 * 60)).toInt()
+                if (gapMins > 0) {
+                    longestBreaksHistory.add(LongestBreakData(dayLabel, gapMins))
+                }
+
+                if (i == 0) {
+                    todayLongestBreakMinutes = gapMins
+                    currentBreakMinutes = if (lastScreenOffTime > 0L) {
+                        ((queryEnd - lastScreenOffTime) / (1000 * 60)).toInt().coerceAtLeast(0)
+                    } else {
+                        0
+                    }
+                }
+            }
+        }
+
+        val wakingPhoneFreePct = if (today != null) {
+            val elapsedWaking = getElapsedWakingMinutesToday()
+            if (elapsedWaking > 0) {
+                ((todayPhoneFreeMinutes.toDouble() / elapsedWaking.toDouble()) * 100.0).roundToInt().coerceIn(0, 100)
+            } else {
+                100
+            }
+        } else {
+            0
+        }
+
+        return TimeAwayStats(
+            todayPhoneFreeMinutes = todayPhoneFreeMinutes,
+            currentBreakMinutes = currentBreakMinutes,
+            todayLongestBreakMinutes = todayLongestBreakMinutes,
+            weeklyPhoneFreePercentage = wakingPhoneFreePct,
+            totalWeeklyReclaimedMinutes = totalWeeklyReclaimedMinutes,
+            weeklyHistory = weeklyHistory,
+            longestBreaksHistory = longestBreaksHistory
+        )
     }
 }

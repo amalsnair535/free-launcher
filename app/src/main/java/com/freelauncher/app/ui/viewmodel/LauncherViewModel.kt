@@ -18,6 +18,7 @@ import com.freelauncher.app.ui.components.TimeCardVerticalAlign
 import com.freelauncher.app.ui.components.TimeCardHorizontalAlign
 import com.freelauncher.app.ui.theme.LauncherFont
 import com.freelauncher.app.ui.theme.LauncherThemeMode
+import com.freelauncher.app.ui.theme.LauncherWallpaper
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -32,13 +33,12 @@ enum class LauncherScreen {
     HOME,
     SIX_APPS,
     ALL_APPS,
-    PRODUCTIVITY,
-    RSS_FEED
+    RSS_FEED,
+    TIME_AWAY
 }
 
 data class LauncherUiState(
     val currentScreen: LauncherScreen = LauncherScreen.HOME,
-    val currentTime: Date = Date(),
     val clockStyle: ClockStyle = ClockStyle.LARGE_DIGITAL,
     val timeCardVAlign: TimeCardVerticalAlign = TimeCardVerticalAlign.CENTER,
     val timeCardHAlign: TimeCardHorizontalAlign = TimeCardHorizontalAlign.CENTER,
@@ -47,7 +47,7 @@ data class LauncherUiState(
     val timeCardScale: Float = 1.0f,
     val fontFamily: LauncherFont = LauncherFont.MINIMAL_SANS,
     val themeMode: LauncherThemeMode = LauncherThemeMode.OLED_BLACK,
-    val wallpaperId: String = "oled_void",
+    val wallpaperId: String = "cyber_noir",
     val customWallpaperUri: String? = null,
     val wallpaperDim: Float = 0.25f,
     val showMonograms: Boolean = true,
@@ -67,6 +67,7 @@ data class LauncherUiState(
     val isFocusTimerRunning: Boolean = false,
     val hasUsagePermission: Boolean = false,
     val weeklyFocusHistory: List<FocusDayUsageData> = emptyList(),
+    val timeAwayStats: com.freelauncher.app.data.service.TimeAwayStats? = null,
     val searchQuery: String = "",
     val selectedAppForPinning: AppItem? = null,
     val showMultiPinDialog: Boolean = false,
@@ -75,8 +76,11 @@ data class LauncherUiState(
     val showAddCategoryDialog: Boolean = false,
     val showRssManagerDialog: Boolean = false,
     val showWallpaperPicker: Boolean = false,
+    val showAtmosphericCreator: Boolean = false,
+    val customWallpapers: List<LauncherWallpaper> = emptyList(),
     val isClockEditMode: Boolean = false,
     val showGestureHints: Boolean = false,
+    val showNewsFeed: Boolean = true,
     val isPinnedOnlyLocked: Boolean = false,
     val pinnedLockFeedbackMessage: String? = null,
     val isBiometricLockEnabled: Boolean = false,
@@ -91,6 +95,9 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private val _uiState = MutableStateFlow(LauncherUiState())
     val uiState: StateFlow<LauncherUiState> = _uiState.asStateFlow()
 
+    private val _currentTime = MutableStateFlow(Date())
+    val currentTime: StateFlow<Date> = _currentTime.asStateFlow()
+
     init {
         startTimeTicker()
         loadSettings()
@@ -103,7 +110,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private fun startTimeTicker() {
         viewModelScope.launch(Dispatchers.Default) {
             while (isActive) {
-                _uiState.update { it.copy(currentTime = Date()) }
+                _currentTime.value = Date()
                 delay(1000.milliseconds)
             }
         }
@@ -120,13 +127,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 val cardScale = settingsMap["time_card_scale"]?.toFloatOrNull() ?: 1.0f
                 val fontId = settingsMap["font_family"] ?: "minimal_sans"
                 val themeId = settingsMap["theme_style"] ?: "oled_black"
-                val wallpaperId = settingsMap["wallpaper_id"] ?: "oled_void"
+                val wallpaperId = settingsMap["wallpaper_id"] ?: "cyber_noir"
                 val customWallpaperUri = settingsMap["custom_wallpaper_uri"]?.takeIf { it.isNotBlank() }
                 val wallpaperDim = settingsMap["wallpaper_dim"]?.toFloatOrNull() ?: 0.25f
                 val showMonograms = settingsMap["show_monograms"] != "false"
                 val greeting = settingsMap["custom_greeting"] ?: "auto"
                 val biometricLock = settingsMap["biometric_lock_enabled"] == "true"
                 val gestureHints = settingsMap["show_gesture_hints"] == "true"
+                val showNewsFeed = settingsMap["show_news_feed"] != "false"
 
                 _uiState.update { state ->
                     state.copy(
@@ -145,6 +153,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                         customGreeting = greeting,
                         isBiometricLockEnabled = biometricLock,
                         showGestureHints = gestureHints,
+                        showNewsFeed = showNewsFeed,
                     )
                 }
             }
@@ -192,6 +201,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             repository.allFocusSessions.collect { sessions ->
                 _uiState.update { it.copy(focusSessions = sessions) }
                 refreshDigitalWellbeingStats()
+            }
+        }
+
+        viewModelScope.launch {
+            repository.allCustomWallpapers.collect { entities ->
+                val wallpapers = entities.map { LauncherWallpaper.fromEntity(it) }
+                _uiState.update { it.copy(customWallpapers = wallpapers) }
             }
         }
     }
@@ -544,10 +560,12 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             val app = getApplication<Application>()
             val hasPerm = DigitalWellbeingService.hasUsagePermission(app)
             val stats = DigitalWellbeingService.getWeeklyStats(app, _uiState.value.focusSessions)
+            val timeAway = DigitalWellbeingService.getTimeAwayStats(app, _uiState.value.focusSessions)
             _uiState.update {
                 it.copy(
                     hasUsagePermission = hasPerm,
                     weeklyFocusHistory = stats,
+                    timeAwayStats = timeAway,
                 )
             }
         }
@@ -645,6 +663,29 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(showWallpaperPicker = visible) }
     }
 
+    fun setAtmosphericCreatorVisible(visible: Boolean) {
+        _uiState.update { it.copy(showAtmosphericCreator = visible) }
+    }
+
+    fun saveAtmosphericTheme(name: String, colors: List<Long>, isDark: Boolean) {
+        viewModelScope.launch {
+            repository.saveCustomWallpaper(name, colors, isDark)
+            setAtmosphericCreatorVisible(false)
+        }
+    }
+
+    fun deleteAtmosphericTheme(id: String) {
+        val longId = id.removePrefix("custom_theme_").toLongOrNull()
+        if (longId != null) {
+            viewModelScope.launch {
+                repository.deleteCustomWallpaper(longId)
+                if (_uiState.value.wallpaperId == id) {
+                    setWallpaper("cyber_noir")
+                }
+            }
+        }
+    }
+
     fun saveCustomWallpaperFromUri(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -676,11 +717,11 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    wallpaperId = "oled_void",
+                    wallpaperId = "cyber_noir",
                     customWallpaperUri = null,
                 )
             }
-            repository.updateSetting("wallpaper_id", "oled_void")
+            repository.updateSetting("wallpaper_id", "cyber_noir")
             repository.updateSetting("custom_wallpaper_uri", "")
         }
     }
@@ -741,6 +782,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(showGestureHints = show) }
         viewModelScope.launch {
             repository.updateSetting("show_gesture_hints", show.toString())
+        }
+    }
+
+    fun setShowNewsFeed(show: Boolean) {
+        _uiState.update { it.copy(showNewsFeed = show) }
+        viewModelScope.launch {
+            repository.updateSetting("show_news_feed", show.toString())
         }
     }
 

@@ -1,7 +1,6 @@
 package com.freelauncher.app.ui.screens
 
 import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -24,13 +23,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Message
 import androidx.compose.material.icons.outlined.Person
@@ -40,6 +39,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -398,10 +398,6 @@ fun AllAppsScreen(
         ) {
             if (isSearching) {
                 // UNIVERSAL SEARCH RESULTS VIEW
-                val hasAnyResults = matchingApps.isNotEmpty() ||
-                        matchingSettings.isNotEmpty() ||
-                        matchingContacts.isNotEmpty() ||
-                        matchingMessages.isNotEmpty()
 
                 // Section 1: Matching Apps
                 if (matchingApps.isNotEmpty()) {
@@ -598,7 +594,7 @@ fun AllAppsScreen(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 Icon(
-                                    Icons.Outlined.Message,
+                                    Icons.AutoMirrored.Outlined.Message,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.secondary,
                                     modifier = Modifier.size(18.dp)
@@ -677,6 +673,58 @@ fun AllAppsScreen(
                             )
                             Text(
                                 text = "Open web browser search",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+                }
+
+                item(key = "youtube_search_item") {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable {
+                                try {
+                                    context.startActivity(UniversalSearchManager.getYouTubeSearchIntent(state.searchQuery))
+                                } catch (e: Exception) {
+                                    try {
+                                        context.startActivity(UniversalSearchManager.getYouTubeWebSearchIntent(state.searchQuery))
+                                    } catch (e2: Exception) {
+                                        e2.printStackTrace()
+                                    }
+                                }
+                            }
+                            .padding(vertical = 10.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color(0xFFFF0000).copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Language, // Will find a better icon or use generic
+                                contentDescription = null,
+                                tint = Color(0xFFFF0000),
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "Search YouTube for \"${state.searchQuery}\"",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 16.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = "Open YouTube app or web",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f)
                             )
@@ -930,7 +978,7 @@ fun ContactResultRowItem(
                 modifier = Modifier.size(36.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Message,
+                    imageVector = Icons.AutoMirrored.Outlined.Message,
                     contentDescription = "Message",
                     tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(18.dp)

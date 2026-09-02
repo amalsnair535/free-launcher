@@ -28,6 +28,7 @@ val PaperOnBackground = Color(0xFF1E1D1B)
 val PaperOnMuted = Color(0xFF6E6B65)
 val PaperBorder = Color(0xFFDDD9CD)
 
+
 // Pure Minimal Light
 val LightBackground = Color(0xFFFCFCFC)
 val LightSurface = Color(0xFFF2F2F2)
