@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FREE Launcher — Your phone, minus the noise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #050506;
+    --surface: #101113;
+    --surface-2: #17181b;
+    --text: #EFEDE9;
+    --text-dim: #90939a;
+    --text-faint: #5b5e64;
+    --accent: #cd93a8;
+    --accent-dim: #cd93a833;
+    --hair: rgba(255,255,255,0.09);
+    --radius-phone: 34px;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection{ background: var(--accent-dim); color: var(--text); }
+
+  a{ color: inherit; }
+
+  .mono{ font-family: 'JetBrains Mono', monospace; }
+
+  .wrap{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(5,5,6,0.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--hair);
+  }
+  nav .wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+  .logo{
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .logo span{ color: var(--accent); }
+  nav .links{
+    display:flex;
+    gap: 28px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  nav .links a{ text-decoration:none; transition: color .15s ease; }
+  nav .links a:hover{ color: var(--text); }
+  .btn-nav{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    border: 1px solid var(--hair);
+    padding: 8px 16px;
+    border-radius: 999px;
+    text-decoration:none;
+    color: var(--text);
+    transition: border-color .15s ease;
+  }
+  .btn-nav:hover{ border-color: var(--accent); }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    padding: 110px 0 90px;
+    text-align: center;
+    border-bottom: 1px solid var(--hair);
+    position: relative;
+    overflow: hidden;
+  }
+  header.hero::before{
+    content:"";
+    position:absolute;
+    top: -180px; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(circle, var(--accent-dim), transparent 65%);
+    pointer-events:none;
+  }
+
+  .lockscreen{
+    position: relative;
+    z-index: 1;
+  }
+
+  #clock{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 300;
+    font-size: clamp(64px, 13vw, 128px);
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  #date{
+    margin-top: 14px;
+    color: var(--text-dim);
+    font-size: 16px;
+  }
+
+  #greeting{
+    color: var(--text-faint);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  h1.headline{
+    margin-top: 56px;
+    font-size: clamp(30px, 4.4vw, 46px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .sub{
+    margin-top: 18px;
+    color: var(--text-dim);
+    font-size: 17px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-row{
+    margin-top: 40px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary{
+    background: var(--text);
+    color: var(--bg);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px 28px;
+    border-radius: 999px;
+    text-decoration:none;
+    display:inline-block;
+    transition: transform .15s ease, background .15s ease;
+  }
+  .btn-primary:hover{ background: var(--accent); transform: translateY(-1px); }
+
+  .btn-secondary{
+    font-size: 15px;
+    color: var(--text-dim);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--hair);
+  }
+  .btn-secondary:hover{ color: var(--text); }
+
+  .hero-note{
+    margin-top: 26px;
+    font-size: 12px;
+    color: var(--text-faint);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ---------- COMPASS ---------- */
+  section.compass{
+    padding: 90px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .compass-head{
+    max-width: 480px;
+    margin-bottom: 56px;
+  }
+  .compass-head h2{
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .compass-head p{
+    margin-top: 12px;
+    color: var(--text-dim);
+    font-size: 15px;
+  }
+
+  .compass-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--hair);
+    border: 1px solid var(--hair);
+  }
+
+  .compass-cell{
+    background: var(--bg);
+    padding: 40px 36px;
+    min-height: 190px;
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: background .2s ease;
+  }
+  .compass-cell:hover{ background: var(--surface); }
+
+  .compass-cell .dir{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    display:flex;
+    align-items:center;
+    gap: 8px;
+  }
+  .compass-cell h3{
+    margin-top: 22px;
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .compass-cell p{
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--text-dim);
+    max-width: 320px;
+  }
+
+  /* ---------- FEATURE ROWS ---------- */
+  section.feature{
+    padding: 100px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  section.feature .row{
+    display:flex;
+    align-items:center;
+    gap: 90px;
+  }
+  section.feature:nth-of-type(even) .row{
+    flex-direction: row-reverse;
+  }
+  .feature-text{ flex: 1 1 380px; }
+  .feature-visual{ flex: 1 1 300px; display:flex; justify-content:center; }
+
+  .kicker{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .feature-text h2{
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    max-width: 420px;
+  }
+  .feature-text p{
+    margin-top: 16px;
+    color: var(--text-dim);
+    font-size: 15.5px;
+    max-width: 420px;
+  }
+  .feature-list{
+    margin-top: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .feature-list li{
+    list-style:none;
+    display:flex;
+    gap: 12px;
+    font-size: 14.5px;
+    color: var(--text);
+    align-items: baseline;
+  }
+  .feature-list li::before{
+    content:"";
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink:0;
+    transform: translateY(-2px);
+  }
+
+  /* Phone frame & UI Mockups */
+  .phone{
+    width: 270px;
+    border-radius: var(--radius-phone);
+    border: 1px solid var(--hair);
+    background: var(--surface-2);
+    padding: 10px;
+    box-shadow: 0 40px 90px -30px rgba(0,0,0,0.8);
+  }
+  .phone .screen{
+    border-radius: 24px;
+    overflow: hidden;
+    aspect-ratio: 9 / 19.5;
+    position: relative;
+    background: #0e131b;
+    color: #e2e8f0;
+    padding: 24px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+  }
+  .phone .notch{
+    position:absolute;
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 50px; height: 6px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.14);
+    z-index: 2;
+  }
+
+  /* Screen 1: Six Apps */
+  .mock-sixapps{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding-top: 30px;
+  }
+  .mock-app-row{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 6px 0;
+  }
+  .mock-mono-box{
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #cbd5e1;
+  }
+  .mock-app-label{
+    font-size: 18px;
+    font-weight: 300;
+    color: #f1f5f9;
+  }
+
+  /* Screen 2: Universal Search */
+  .mock-search-bar{
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #94a3b8;
+  }
+  .mock-section-title{
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #64748b;
+    margin: 18px 0 8px;
+  }
+
+  /* Screen 3: Time Away */
+  .mock-hero-card{
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 16px;
+    text-align: center;
+    margin-top: 12px;
+  }
+  .mock-hero-num{
+    font-size: 28px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 4px 0;
+  }
+  .mock-grid-row{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .mock-small-card{
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  /* Screen 4: News */
+  .mock-news-item{
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 10px 0;
+  }
+  .mock-news-title{
+    font-size: 12px;
+    font-weight: 600;
+    color: #f1f5f9;
+    line-height: 1.3;
+  }
+  .mock-news-sub{
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+
+  /* ---------- THEMES STRIP ---------- */
+  section.themes{
+    padding: 90px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .themes .wrap{
+    display:flex;
+    gap: 90px;
+    align-items:flex-start;
+    flex-wrap: wrap;
+  }
+  .themes-text{ flex: 1 1 360px; }
+  .themes-text h2{
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 600;
+  }
+  .themes-text p{
+    margin-top: 16px;
+    color: var(--text-dim);
+    font-size: 15.5px;
+    max-width: 420px;
+  }
+  .swatches{
+    flex: 1 1 300px;
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .swatch{
+    aspect-ratio: 1;
+    border-radius: 14px;
+    border: 1px solid var(--hair);
+    display:flex;
+    align-items:flex-end;
+    padding: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.55);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding: 80px 0 50px;
+    text-align:center;
+  }
+  footer h2{
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  footer .cta-row{ margin-top: 34px; }
+  .footer-meta{
+    margin-top: 70px;
+    padding-top: 26px;
+    border-top: 1px solid var(--hair);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 13px;
+    color: var(--text-faint);
+  }
+  .footer-meta a{ color: var(--text-dim); text-decoration:none; }
+  .footer-meta a:hover{ color: var(--text); }
+
+  @media (max-width: 760px){
+    .wrap{ padding: 0 22px; }
+    nav .links{ display:none; }
+    section.feature .row,
+    section.feature:nth-of-type(even) .row{
+      flex-direction: column;
+      gap: 48px;
+    }
+    .compass-grid{ grid-template-columns: 1fr; }
+    .themes .wrap{ gap: 40px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="logo">free<span>.</span>launcher</div>
+    <div class="links">
+      <a href="#compass">Navigation</a>
+      <a href="#six-apps">Six Apps</a>
+      <a href="#time-away">Time Away</a>
+      <a href="#themes">Themes</a>
+    </div>
+    <a class="btn-nav" href="https://github.com/amalsnair535/free-launcher/releases" target="_blank" rel="noopener">Download</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap lockscreen">
+    <div id="clock" class="mono">11:02</div>
+    <div id="date">Wednesday, September 2</div>
+    <div id="greeting">Good morning</div>
+
+    <h1 class="headline">Your phone, minus the noise.</h1>
+    <p class="sub">A launcher built around one clock, six apps, and digital wellbeing balance.</p>
+
+    <div class="cta-row">
+      <a class="btn-primary" href="https://github.com/amalsnair535/free-launcher/releases" target="_blank" rel="noopener">Download APK</a>
+      <a class="btn-secondary" href="https://github.com/amalsnair535/free-launcher" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="hero-note">Open source Android launcher — built for speed & focus</div>
+  </div>
+</header>
+
+<section class="compass" id="compass">
+  <div class="wrap">
+    <div class="compass-head">
+      <h2>Four swipes. That's the whole map.</h2>
+      <p>No complex menus. Every screen in FREE Launcher sits one gesture away from the home screen.</p>
+    </div>
+    <div class="compass-grid">
+      <div class="compass-cell">
+        <div class="dir">↑ Swipe up</div>
+        <h3>Six Apps</h3>
+        <p>Your most-used apps, one tap away, with a triple-tap lock to keep everything else out of reach.</p>
+      </div>
+      <div class="compass-cell">
+        <div class="dir">↓ Swipe down</div>
+        <h3>All Apps</h3>
+        <p>Every app on your phone, searchable alongside contacts, settings, and messages.</p>
+      </div>
+      <div class="compass-cell">
+        <div class="dir">← Swipe left</div>
+        <h3>Time Away</h3>
+        <p>How much of today you actually spent off your phone, tracked through your waking hours.</p>
+      </div>
+      <div class="compass-cell">
+        <div class="dir">→ Swipe right</div>
+        <h3>News</h3>
+        <p>An ad-free RSS reader for the feeds you already follow, with nothing added to them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature" id="six-apps">
+  <div class="wrap row">
+    <div class="feature-text">
+      <div class="kicker">Six Apps</div>
+      <h2>Six apps, always within reach</h2>
+      <p>Pin the apps you open without thinking — everything else stays a swipe further away.</p>
+      <ul class="feature-list">
+        <li>Up to six slots, each shown as a simple 1–2 letter monogram</li>
+        <li>Triple-tap anywhere to lock the launcher into Focus Mode</li>
+        <li>Run a Pomodoro session right from the home screen, with a countdown badge</li>
+        <li>Reorder and repin apps from a single dialog</li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <div class="phone">
+        <div class="screen">
+          <div class="notch"></div>
+          <div class="mock-sixapps">
+            <div style="text-align:center; color:#64748b; font-size:11px;">∨</div>
+            <div>
+              <div class="mock-app-row"><div class="mock-mono-box">AL</div><div class="mock-app-label">Albums</div></div>
+              <div class="mock-app-row"><div class="mock-mono-box">CA</div><div class="mock-app-label">Camera</div></div>
+              <div class="mock-app-row"><div class="mock-mono-box">JU</div><div class="mock-app-label">Jupiter</div></div>
+              <div class="mock-app-row"><div class="mock-mono-box">PH</div><div class="mock-app-label">Phone</div></div>
+              <div class="mock-app-row"><div class="mock-mono-box">WH</div><div class="mock-app-label">WhatsApp</div></div>
+              <div class="mock-app-row"><div class="mock-mono-box">GP</div><div class="mock-app-label">GPay</div></div>
+            </div>
+            <div style="text-align:center; color:#64748b; font-size:11px;">∧</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature" id="search">
+  <div class="wrap row">
+    <div class="feature-text">
+      <div class="kicker">All Apps</div>
+      <h2>One search bar for everything</h2>
+      <p>Type once and it looks across your apps, contacts, settings, messages, and the web — no separate search for each.</p>
+      <ul class="feature-list">
+        <li>Indexes installed apps, contacts, system settings, and SMS in real time</li>
+        <li>Sort apps into your own categories, or use Communication, Media, Work, and Tools</li>
+        <li>Fall through to YouTube or a web search when nothing local matches</li>
+        <li>Lock the drawer behind fingerprint or device passcode</li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <div class="phone">
+        <div class="screen">
+          <div class="notch"></div>
+          <div class="mock-search-bar">🔍 chat</div>
+          <div class="mock-section-title">APPS (1)</div>
+          <div class="mock-app-row"><div class="mock-mono-box">CH</div><div class="mock-app-label" style="font-size:15px;">ChatGPT</div></div>
+          <div class="mock-section-title">MESSAGES</div>
+          <div style="font-size:12px; color:#cbd5e1;">Send message to "chat"</div>
+          <div class="mock-section-title">WEB SEARCH</div>
+          <div style="font-size:12px; color:#cbd5e1;">Search Google for "chat"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature" id="time-away">
+  <div class="wrap row">
+    <div class="feature-text">
+      <div class="kicker">Time Away</div>
+      <h2>See the time you actually got back</h2>
+      <p>Counts phone-free time strictly during your waking hours (7 AM - 11 PM), so sleep time doesn't inflate the number.</p>
+      <ul class="feature-list">
+        <li>Today's phone-free total, updated as you go</li>
+        <li>Current break and longest continuous daytime break</li>
+        <li>A 7-day view of hours reclaimed, with a bar for each day</li>
+        <li>Runs on Android's usage-access permission, granted in one tap</li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <div class="phone">
+        <div class="screen">
+          <div class="notch"></div>
+          <div style="font-size:11px; color:#64748b; text-align:center;">← Time Away</div>
+          <div class="mock-hero-card">
+            <div style="font-size:10px; color:#cd93a8; font-weight:700;">PHONE-FREE TODAY</div>
+            <div class="mock-hero-num">3h 11m</div>
+            <div style="font-size:9px; color:#64748b;">During waking hours</div>
+          </div>
+          <div class="mock-grid-row">
+            <div class="mock-small-card"><div style="font-size:9px; color:#64748b;">Current Break</div><div style="font-size:14px; font-weight:700;">0m</div></div>
+            <div class="mock-small-card"><div style="font-size:9px; color:#64748b;">Longest Break</div><div style="font-size:14px; font-weight:700;">3h 11m</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature" id="news">
+  <div class="wrap row">
+    <div class="feature-text">
+      <div class="kicker">News</div>
+      <h2>News without the feed</h2>
+      <p>Add your own RSS sources and read them clean, in the order they were published — no algorithm deciding what you see first.</p>
+      <ul class="feature-list">
+        <li>Swipe right from the home screen to open your reading list</li>
+        <li>Add, remove, and reorder feeds whenever you like</li>
+        <li>Links open in your default browser, not an in-app view</li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <div class="phone">
+        <div class="screen">
+          <div class="notch"></div>
+          <div style="font-size:14px; font-weight:700; text-align:center; margin-bottom:12px;">NEWS</div>
+          <div class="mock-news-item">
+            <div class="mock-news-title">Perplexity can now split your tasks between cloud and local AI</div>
+            <div class="mock-news-sub">Android Authority • Just now</div>
+          </div>
+          <div class="mock-news-item">
+            <div class="mock-news-title">Gemini now analyzes your videos more accurately</div>
+            <div class="mock-news-sub">Android Authority • 4m</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="themes" id="themes">
+  <div class="wrap">
+    <div class="themes-text">
+      <div class="kicker">Themes & wallpaper</div>
+      <h2>Built for black screens</h2>
+      <p>True black by default, because that's where an AMOLED display actually saves battery and looks its best. Bring your own gradient, or your own photo, and dial in the contrast until the text reads clean.</p>
+    </div>
+    <div class="swatches">
+      <div class="swatch" style="background:#000000;">OLED</div>
+      <div class="swatch" style="background:linear-gradient(160deg,#101113,#050506);">Glass</div>
+      <div class="swatch" style="background:linear-gradient(160deg,#2b1c22,#050506);">Gradient</div>
+      <div class="swatch" style="background:#eeece7; color:#111;">Light</div>
+    </div>
+  </div>
+</section>
+
+<footer id="download">
+  <div class="wrap">
+    <h2>Try it on your phone tonight.</h2>
+    <div class="cta-row">
+      <a class="btn-primary" href="https://github.com/amalsnair535/free-launcher/releases" target="_blank" rel="noopener">Download APK</a>
+      <a class="btn-secondary" href="https://github.com/amalsnair535/free-launcher" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="footer-meta">
+      <span>Built for Android 15 & 16 — Open Source Project</span>
+      <a href="privacy_policy.md" target="_blank">Privacy Policy</a>
+      <a href="#compass">Back to top</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function tick(){
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('clock').textContent = `${h}:${m}`;
+
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('date').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+
+    const hour = now.getHours();
+    let greeting = 'Good evening';
+    if (hour < 5 || hour >= 23) greeting = 'Night focus';
+    else if (hour < 12) greeting = 'Good morning';
+    else if (hour < 17) greeting = 'Good afternoon';
+    document.getElementById('greeting').textContent = greeting;
+  }
+  tick();
+  setInterval(tick, 1000 * 15);
+</script>
+
+</body>
+</html>
