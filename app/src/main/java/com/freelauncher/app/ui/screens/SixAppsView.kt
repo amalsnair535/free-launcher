@@ -58,10 +58,6 @@ fun SixAppsView(
     var totalDragY by remember { mutableFloatStateOf(0f) }
     var totalDragX by remember { mutableFloatStateOf(0f) }
 
-    // Triple Tap Detector variables
-    var tapCount by remember { mutableIntStateOf(0) }
-    var lastTapTime by remember { mutableLongStateOf(0L) }
-
     val isLocked = state.isPinnedOnlyLocked
 
     // Request high refresh rate for smooth transitions when this screen is active
@@ -92,66 +88,41 @@ fun SixAppsView(
             .fillMaxSize()
             .navigationBarsPadding()
             .statusBarsPadding()
-            // Detect Triple Tap across the entire screen
             .pointerInput(isLocked) {
-                detectTapGestures(
-                    onTap = {
-                        val currentTime = System.currentTimeMillis()
-                        if (currentTime - lastTapTime < 500) {
-                            tapCount++
-                        } else {
-                            tapCount = 1
-                        }
-                        lastTapTime = currentTime
-
-                        if (tapCount >= 3) {
-                            tapCount = 0
-                            LauncherHaptics.playClick(context)
-                            onToggleLock()
-                        }
-                    }
-                )
-            }
-            // If NOT locked, enable drag gestures to navigate to other screens
-            .then(
                 if (!isLocked) {
-                    Modifier.pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragStart = {
-                                totalDragY = 0f
-                                totalDragX = 0f
-                            },
-                            onDragEnd = {
-                                val threshold = 70f
-                                if (abs(totalDragY) > abs(totalDragX)) {
-                                    if (totalDragY > threshold) {
-                                        // Dragged down -> back to Home
-                                        onNavigate(LauncherScreen.HOME)
-                                    } else if (totalDragY < -threshold) {
-                                        // Dragged up -> All Apps
-                                        onNavigate(LauncherScreen.ALL_APPS)
-                                    }
-                                } else {
-                                    if (totalDragX < -threshold && state.showNewsFeed) {
-                                        // Dragged left -> RSS Feed (Right screen)
-                                        onNavigate(LauncherScreen.RSS_FEED)
-                                    } else if (totalDragX > threshold) {
-                                        // Dragged right -> Time Away (Left screen)
-                                        onNavigate(LauncherScreen.TIME_AWAY)
-                                    }
+                    detectDragGestures(
+                        onDragStart = {
+                            totalDragY = 0f
+                            totalDragX = 0f
+                        },
+                        onDragEnd = {
+                            val threshold = 60f
+                            if (abs(totalDragY) > abs(totalDragX)) {
+                                if (totalDragY > threshold) {
+                                    // Dragged down -> back to Home
+                                    onNavigate(LauncherScreen.HOME)
+                                } else if (totalDragY < -threshold) {
+                                    // Dragged up -> All Apps & Search
+                                    onNavigate(LauncherScreen.ALL_APPS)
                                 }
-                            },
-                            onDrag = { change, dragAmount ->
-                                change.consume()
-                                totalDragY += dragAmount.y
-                                totalDragX += dragAmount.x
+                            } else {
+                                if (totalDragX < -threshold && state.showNewsFeed) {
+                                    // Dragged left -> RSS Feed
+                                    onNavigate(LauncherScreen.RSS_FEED)
+                                } else if (totalDragX > threshold && state.showTimeAway) {
+                                    // Dragged right -> Time Away
+                                    onNavigate(LauncherScreen.TIME_AWAY)
+                                }
                             }
-                        )
-                    }
-                } else {
-                    Modifier
+                        },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            totalDragY += dragAmount.y
+                            totalDragX += dragAmount.x
+                        }
+                    )
                 }
-            )
+            }
             .testTag("six_apps_view_root")
     ) {
         // Top Section: Back Button (when unlocked)

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,6 +39,7 @@ fun RssFeedScreen(
     onOpenArticle: (String) -> Unit,
     onManualRefresh: () -> Unit,
     onOpenAddFeedDialog: () -> Unit,
+    onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -120,6 +122,19 @@ fun RssFeedScreen(
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Manage Feeds",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        LauncherHaptics.playClick(context)
+                        onOpenSettings()
+                    },
+                    modifier = Modifier.testTag("rss_settings_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Launcher Settings",
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 }

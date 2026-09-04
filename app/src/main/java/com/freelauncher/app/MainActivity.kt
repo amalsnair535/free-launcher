@@ -203,6 +203,8 @@ class MainActivity : FragmentActivity() {
                                     currentTime = currentTime,
                                     onNavigate = onNavigate,
                                     onOpenSettings = onOpenSettings,
+                                    onOpenSearch = { viewModel.openSearchFromHome() },
+                                    onOpenDialer = { viewModel.openDialerApp(context) },
                                     onClockStyleChanged = onClockStyleChanged,
                                     onTimeCardOffsetChanged = onTimeCardOffsetChanged,
                                     onResetTimeCardOffset = onResetTimeCardOffset,
@@ -239,6 +241,7 @@ class MainActivity : FragmentActivity() {
                                     onOpenArticle = onOpenArticle,
                                     onManualRefresh = onManualRefresh,
                                     onOpenAddFeedDialog = onOpenRssManager,
+                                    onOpenSettings = onOpenSettings,
                                 )
                             }
                             LauncherScreen.TIME_AWAY -> {
@@ -339,6 +342,7 @@ class MainActivity : FragmentActivity() {
                             showMonograms = state.showMonograms,
                             showGestureHints = state.showGestureHints,
                             showNewsFeed = state.showNewsFeed,
+                            showTimeAway = state.showTimeAway,
                             currentGreeting = state.customGreeting,
                             isBiometricLockEnabled = state.isBiometricLockEnabled,
                             onClockStyleChanged = onClockStyleChanged,
@@ -348,11 +352,28 @@ class MainActivity : FragmentActivity() {
                             onMonogramsToggled = { viewModel.setShowMonograms(it) },
                             onGestureHintsToggled = { viewModel.setShowGestureHints(it) },
                             onNewsFeedToggled = { viewModel.setShowNewsFeed(it) },
+                            onTimeAwayToggled = { viewModel.setShowTimeAway(it) },
                             onGreetingChanged = { viewModel.setCustomGreeting(it) },
                             onBiometricLockToggled = { viewModel.setBiometricLockEnabled(it) },
                             onOpenCategoryManager = onOpenCategoryManager,
                             onOpenRssManager = onOpenRssManager,
+                            onOpenOnboardingGuide = { viewModel.setOnboardingGuideVisible(true) },
                         ) { viewModel.setSettingsSheetVisible(visible = false) }
+                    }
+
+                    // Onboarding & Gesture Guide Sheet
+                    if (state.showOnboardingGuide) {
+                        OnboardingSheet(
+                            onSetDefaultLauncher = {
+                                viewModel.openDefaultLauncherChooser(this@MainActivity)
+                            },
+                            onCompleteOnboarding = {
+                                viewModel.completeOnboarding()
+                            },
+                            onDismiss = {
+                                viewModel.completeOnboarding()
+                            }
+                        )
                     }
 
                     // Sheet 2: Transparent Atmosphere & Wallpaper Selector

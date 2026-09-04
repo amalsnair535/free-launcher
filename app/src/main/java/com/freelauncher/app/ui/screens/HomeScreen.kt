@@ -19,6 +19,8 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.OpenWith
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,6 +54,8 @@ fun HomeScreen(
     currentTime: Date,
     onNavigate: (LauncherScreen) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenSearch: () -> Unit = {},
+    onOpenDialer: () -> Unit = {},
     modifier: Modifier = Modifier,
     onClockStyleChanged: (ClockStyle) -> Unit = {},
     onTimeCardOffsetChanged: (Float, Float) -> Unit = { _, _ -> },
@@ -116,15 +120,21 @@ fun HomeScreen(
                             totalDragY = 0f
                         },
                         onDragEnd = {
-                            val threshold = 70f
+                            val threshold = 60f
                             if (abs(totalDragX) > abs(totalDragY)) {
                                 // Horizontal Swipe
                                 if (totalDragX < -threshold && state.showNewsFeed) {
                                     // Swiped Left -> News Feed screen
                                     onNavigate(LauncherScreen.RSS_FEED)
-                                } else if (totalDragX > threshold) {
+                                } else if (totalDragX > threshold && state.showTimeAway) {
                                     // Swiped Right -> Time Away screen
                                     onNavigate(LauncherScreen.TIME_AWAY)
+                                }
+                            } else {
+                                // Vertical Swipe
+                                if (totalDragY < -threshold) {
+                                    // Swiped Up -> Six Apps screen
+                                    onNavigate(LauncherScreen.SIX_APPS)
                                 }
                             }
                         }
@@ -156,15 +166,17 @@ fun HomeScreen(
         // Edge gesture hints when not editing (Only shown if gesture hints setting is enabled)
         if (!isEditMode && state.showGestureHints) {
             // Left hint: Time Away Screen
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 6.dp)
-                    .width(3.dp)
-                    .height(28.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f))
-            )
+            if (state.showTimeAway) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 6.dp)
+                        .width(3.dp)
+                        .height(28.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f))
+                )
+            }
             // Right hint: News Feed
             if (state.showNewsFeed) {
                 Box(
@@ -344,7 +356,62 @@ fun HomeScreen(
                         .testTag("home_date_text")
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Quick Action Icons Row: Search Lens & Dialer Icon (Between Date and Greetings)
+                if (!isEditMode) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .scale(clockAnimScale.coerceAtMost(1.1f))
+                            .padding(vertical = 4.dp)
+                    ) {
+                        // Search Lens Icon Button
+                        Surface(
+                            onClick = onOpenSearch,
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                            border = androidx.compose.foundation.BorderStroke(
+                                0.8.dp,
+                                MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+                            ),
+                            modifier = Modifier.size(38.dp).testTag("home_search_lens_button")
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search Lens",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                                    modifier = Modifier.size(17.dp)
+                                )
+                            }
+                        }
+
+                        // Dialer Icon Button
+                        Surface(
+                            onClick = onOpenDialer,
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                            border = androidx.compose.foundation.BorderStroke(
+                                0.8.dp,
+                                MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+                            ),
+                            modifier = Modifier.size(38.dp).testTag("home_dialer_button")
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Call,
+                                    contentDescription = "Open Dialer",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                                    modifier = Modifier.size(17.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
                 // Contextual Greeting
                 Text(
@@ -359,6 +426,28 @@ fun HomeScreen(
                         .scale(clockAnimScale.coerceAtMost(1.15f))
                         .testTag("contextual_greeting_text")
                 )
+
+                // Phone-Free Today Time Indicator
+                if (state.showTimeAway && state.hasUsagePermission && state.timeAwayStats != null) {
+                    val todayMins = state.timeAwayStats.todayPhoneFreeMinutes
+                    val hrs = todayMins / 60
+                    val mins = todayMins % 60
+                    val timeFormatted = if (hrs > 0) "${hrs}h ${mins}m" else "${mins}m"
+
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "$timeFormatted phone-free today",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Medium,
+                            letterSpacing = 0.5.sp
+                        ),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .scale(clockAnimScale.coerceAtMost(1.1f))
+                            .testTag("home_phone_free_today_text")
+                    )
+                }
             }
         }
 

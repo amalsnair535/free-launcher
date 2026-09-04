@@ -45,6 +45,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -282,8 +283,8 @@ fun AllAppsScreen(
             }
         }
 
-        // Category Filter Row below search bar
-        if (!isSearching) {
+        // Category Filter Row below search bar (Hidden when searching or in Search-Only mode)
+        if (!isSearching && !state.isSearchOnlyMode) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -396,7 +397,24 @@ fun AllAppsScreen(
             contentPadding = PaddingValues(top = 8.dp, bottom = 40.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            if (isSearching) {
+            if (state.isSearchOnlyMode && state.searchQuery.isBlank()) {
+                // CLEAN BLANK SPACE IN SEARCH MODE BEFORE TYPING STARTS
+                item(key = "search_mode_blank_space") {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Type to search apps, contacts, web...",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            } else if (isSearching) {
                 // UNIVERSAL SEARCH RESULTS VIEW
 
                 // Section 1: Matching Apps

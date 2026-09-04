@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.freelauncher.app.data.db.*
@@ -81,11 +83,14 @@ data class LauncherUiState(
     val isClockEditMode: Boolean = false,
     val showGestureHints: Boolean = false,
     val showNewsFeed: Boolean = true,
+    val showTimeAway: Boolean = true,
     val isPinnedOnlyLocked: Boolean = false,
     val pinnedLockFeedbackMessage: String? = null,
     val isBiometricLockEnabled: Boolean = false,
     val showBiometricAuthDialog: Boolean = false,
     val biometricAuthError: String? = null,
+    val isSearchOnlyMode: Boolean = false,
+    val showOnboardingGuide: Boolean = false,
 )
 
 class LauncherViewModel(application: Application) : AndroidViewModel(application) {
@@ -135,6 +140,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 val biometricLock = settingsMap["biometric_lock_enabled"] == "true"
                 val gestureHints = settingsMap["show_gesture_hints"] == "true"
                 val showNewsFeed = settingsMap["show_news_feed"] != "false"
+                val showTimeAway = settingsMap["show_time_away"] != "false"
+                val onboardingCompleted = settingsMap["onboarding_completed"] == "true"
 
                 _uiState.update { state ->
                     state.copy(
@@ -154,6 +161,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                         isBiometricLockEnabled = biometricLock,
                         showGestureHints = gestureHints,
                         showNewsFeed = showNewsFeed,
+                        showTimeAway = showTimeAway,
+                        showOnboardingGuide = !onboardingCompleted,
                     )
                 }
             }
@@ -343,7 +352,37 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             _uiState.update { it.copy(pinnedLockFeedbackMessage = "Focus Mode Locked • Triple-tap to exit") }
             return
         }
-        _uiState.update { it.copy(currentScreen = screen) }
+        _uiState.update { 
+            it.copy(
+                currentScreen = screen,
+                isSearchOnlyMode = if (screen == LauncherScreen.ALL_APPS) it.isSearchOnlyMode else false,
+                searchQuery = if (screen == LauncherScreen.ALL_APPS) it.searchQuery else ""
+            ) 
+        }
+    }
+
+    fun openSearchFromHome() {
+        if (_uiState.value.isPinnedOnlyLocked) {
+            _uiState.update { it.copy(pinnedLockFeedbackMessage = "Focus Mode Locked • Triple-tap to exit") }
+            return
+        }
+        _uiState.update {
+            it.copy(
+                isSearchOnlyMode = true,
+                searchQuery = "",
+                currentScreen = LauncherScreen.ALL_APPS,
+            )
+        }
+    }
+
+    fun exitSearchOnlyMode() {
+        _uiState.update {
+            it.copy(
+                isSearchOnlyMode = false,
+                searchQuery = "",
+                currentScreen = LauncherScreen.HOME,
+            )
+        }
     }
 
     fun setSearchQuery(query: String) {
@@ -439,6 +478,18 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             context.startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    fun openDialerApp(context: Context) {
+        try {
+            val intent = Intent(Intent.ACTION_DIAL).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            android.widget.Toast.makeText(context, "Could not open dialer", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -743,6 +794,43 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun setOnboardingGuideVisible(visible: Boolean) {
+        _uiState.update { it.copy(showOnboardingGuide = visible) }
+    }
+
+    fun completeOnboarding() {
+        _uiState.update { it.copy(showOnboardingGuide = false) }
+        viewModelScope.launch {
+            repository.updateSetting("onboarding_completed", "true")
+        }
+    }
+
+    fun openDefaultLauncherChooser(context: Context) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val roleManager = context.getSystemService(Context.ROLE_SERVICE) as? android.app.role.RoleManager
+                if (roleManager != null && roleManager.isRoleAvailable(android.app.role.RoleManager.ROLE_HOME) && !roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_HOME)) {
+                    val intent = roleManager.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME)
+                    if (context is android.app.Activity) {
+                        context.startActivityForResult(intent, 1001)
+                        return
+                    }
+                }
+            }
+            val intent = Intent(Settings.ACTION_HOME_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            try {
+                val fallbackIntent = Intent(Settings.ACTION_SETTINGS).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(fallbackIntent)
+            } catch (_: Exception) {}
+        }
+    }
+
     fun requestAccessToAllApps() {
         if (_uiState.value.isBiometricLockEnabled) {
             _uiState.update {
@@ -789,6 +877,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(showNewsFeed = show) }
         viewModelScope.launch {
             repository.updateSetting("show_news_feed", show.toString())
+        }
+    }
+
+    fun setShowTimeAway(show: Boolean) {
+        _uiState.update { it.copy(showTimeAway = show) }
+        viewModelScope.launch {
+            repository.updateSetting("show_time_away", show.toString())
         }
     }
 

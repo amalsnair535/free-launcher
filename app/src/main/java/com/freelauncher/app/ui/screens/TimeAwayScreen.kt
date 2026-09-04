@@ -110,11 +110,6 @@ fun TimeAwayScreen(
                             ),
                             color = MaterialTheme.colorScheme.onBackground
                         )
-                        Text(
-                            text = "Digital Wellbeing & Balance",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
                     }
 
                     Spacer(modifier = Modifier.size(48.dp))

@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,25 @@ class ColorListConverter {
 
     @TypeConverter
     fun toList(data: String): List<Long> = if (data.isEmpty()) emptyList() else data.split(",").map { it.toLong() }
+}
+
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `custom_wallpapers` (" +
+                "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`name` TEXT NOT NULL, " +
+                "`colors` TEXT NOT NULL, " +
+                "`isDark` INTEGER NOT NULL DEFAULT 1, " +
+                "`createdAt` INTEGER NOT NULL)"
+        )
+    }
+}
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Safe migration step for version 3
+    }
 }
 
 @Database(
@@ -52,7 +72,8 @@ abstract class LauncherDatabase : RoomDatabase() {
                     LauncherDatabase::class.java,
                     "free_launcher_database"
                 )
-                    .fallbackToDestructiveMigration() // Simple for dev, resets DB on version bump
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .fallbackToDestructiveMigrationOnDowngrade(false)
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
