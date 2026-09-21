@@ -1,4 +1,11 @@
 Free launcher
+<img width="1254" height="1254" alt="free launcher icon" src="https://github.com/user-attachments/assets/c54363d8-a699-481a-b5ab-ef705061a60f" />
+
+
+![Uploading Gemini_Generated_Image_vzzvhpvzzvhpvzzv.png…]()
+<img width="1536" height="2752" alt="Gemini_Generated_Image_ruai9bruai9bruai" src="https://github.com/user-attachments/assets/31f16648-a080-49ed-a090-4313fa2b4895" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_8tjuhx8tjuhx8tju" src="https://github.com/user-attachments/assets/04230809-9bf1-4de0-a23f-0f20b7eabfc0" />
+
 
 1. 🕒 Minimalist Home Screen & Interactive Clock Canvas
 •
