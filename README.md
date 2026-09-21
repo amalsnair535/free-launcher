@@ -1,15 +1,7 @@
-Free launcher
-<img width="512" height="512" alt="free launcher icon" src="https://github.com/user-attachments/assets/c54363d8-a699-481a-b5ab-ef705061a60f" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_czbkcczbkcczbkcc" src="https://github.com/user-attachments/assets/6fb84e2e-0578-44ea-a333-b541a5582e2c" /><img width="1536" height="2752" alt="Gemini_Generated_Image_8tjuhx8tjuhx8tju" src="https://github.com/user-attachments/assets/e4533a7d-bc79-499d-8830-b2f679ce2d83" />Free launcher
+<img width="212" height="212" alt="free launcher icon" src="https://github.com/user-attachments/assets/c54363d8-a699-481a-b5ab-ef705061a60f" />
 
 
-<img width="1536" height="2752" alt="Gemini_Generated_Image_czbkcczbkcczbkcc" src="https://github.com/user-attachments/assets/3f56f0fd-ecac-462d-8d6d-ac4d61aeb611" />
-<img width="1536" height="2752" alt="Gemini_Generated_Image_f96nskf96nskf96n" src="https://github.com/user-attachments/assets/d13cec20-bd67-4f4e-9ad0-905dec964db4" />
-<img width="1536" height="2752" alt="Gemini_Generated_Image_bsikpgbsikpgbsik" src="https://github.com/user-attachments/assets/f937a5d5-f00e-4504-b60c-ea0418652ba1" />
-<img width="1536" height="2752" alt="Gemini_Generated_Image_vzzvhpvzzvhpvzzv" src="https://github.com/user-attachments/assets/150d3f34-2cab-46a8-b137-bc80603e635e" />
-<img width="1536" height="2752" alt="Gemini_Generated_Image_ruai9bruai9bruai" src="https://github.com/user-attachments/assets/43d5014b-01aa-499a-8289-f871f8a65f55" />
-<img width="1536" height="2752" alt="Gemini_Generated_Image_8tjuhx8tjuhx8tju" src="https://github.com/user-attachments/assets/c413cb34-1e0a-438d-88e6-9078bec8a29d" />
-<img width="1536" height="2752" alt="Gemini_Generated_Image_6krhh36krhh36krh" src="https://github.com/user-attachments/assets/47e3fb60-2284-4cd1-b08f-c565800e154e" />
-<img width="1536" height="2752" alt="Gemini_Generated_Image_s8q4oas8q4oas8q4" src="https://github.com/user-attachments/assets/b9779bd5-0261-47fa-8d71-01da32e3298b" />
 
 
 
@@ -24,6 +16,10 @@ Multiple Minimalist Clock Styles: Horizontal swipe carousel to choose between st
 Contextual Greetings & Date: Displays time-of-day greetings (Good Morning, Good Afternoon, Good Evening, Night Focus) or your own custom greeting text.
 •
 Gesture Affordances: Minimal left and right edge hint bars indicating available swipe directions.
+
+<img width="1536" height="2752" alt="Gemini_Generated_Image_bsikpgbsikpgbsik" src="https://github.com/user-attachments/assets/81f4d157-ff46-47ee-87fb-d1f70bfcf3da" />
+
+
 2. ⚡ Distraction-Free Quick Access (Six Apps View)
 •
 1-to-6 Quick Access Slots: Add up to 6 essential apps for instant distraction-free access.
@@ -35,6 +31,10 @@ Triple-Tap Focus Lock: Lock the launcher into Focus Mode / Pinned-Only Mode. Tri
 Pomodoro Focus Sessions: Run timed focus sessions with active countdown timer badges.
 •
 Multi-App Pinning Selector: Dialog to pick and reorder quick-slot apps effortlessly.
+
+<img width="1536" height="2752" alt="Gemini_Generated_Image_s8q4oas8q4oas8q4" src="https://github.com/user-attachments/assets/7a39cec4-532d-458a-b673-595000cc0c25" />
+
+
 3. 📊 Time Away & Digital Wellbeing Dashboard (New)
 •
 Waking Hours Intelligence: Calculates phone-free time and break metrics specifically during active waking hours (7:00 AM – 11:00 PM), ignoring sleeping time.
@@ -50,6 +50,10 @@ Weekly Overview Chart: 7-day progress bars showing exact phone-free hours per da
 Recent Longest Breaks History: Historical record of top screen-off break intervals.
 •
 Privacy & Usage Access: Integrated with Android UsageStatsManager with an inline permission grant banner and settings shortcut.
+
+<img width="1536" height="2752" alt="Gemini_Generated_Image_f96nskf96nskf96n" src="https://github.com/user-attachments/assets/48634f9a-21d5-44d8-b31d-710e5097471a" />
+
+
 4. 🔍 Universal Search & All Apps Drawer
 •
 Universal Deep Search: Real-time search indexing installed apps, device contacts, system settings, SMS messages, YouTube, and Web search in one unified view.
@@ -59,11 +63,19 @@ Custom Categories: Categorize apps into Communication, Media, Work, Tools, or yo
 Category Manager: Create, rename, reorder, delete, and toggle visibility for app categories.
 •
 Biometric / Fingerprint Security: Lock the All Apps drawer behind Biometric/Fingerprint or device passcode authentication.
+
+<img width="1536" height="2752" alt="Gemini_Generated_Image_6krhh36krhh36krh" src="https://github.com/user-attachments/assets/919fa840-cec4-45df-b991-ac3711a58203" />
+
+
 5. 📰 Distraction-Free RSS News Feed
 •
 Integrated News Reader: Swipe left from Home or Six Apps to read clean, ad-free RSS news articles.
 •
 Feed Manager: Add custom RSS feeds, toggle sources, manual refresh, and open links directly in your default browser.
+
+<img width="1536" height="2752" alt="Gemini_Generated_Image_czbkcczbkcczbkcc" src="https://github.com/user-attachments/assets/237d80e4-6d42-45cd-a7a0-76efec57b41c" />
+
+
 6. 🎨 Atmospheric Themes & Custom Wallpapers
 •
 OLED Black & Material 3 Themes: True black OLED themes, frosted glass translucency, dark & light themes.
@@ -71,6 +83,11 @@ OLED Black & Material 3 Themes: True black OLED themes, frosted glass translucen
 Atmospheric Gradient Creator: Design your own multi-color atmospheric gradient wallpapers.
 •
 Custom Gallery Wallpapers: Choose any custom image from your gallery with an adjustable wallpaper dimming/scrim slider for crisp text contrast.
+
+<img width="1536" height="2752" alt="Gemini_Generated_Image_vzzvhpvzzvhpvzzv" src="https://github.com/user-attachments/assets/12580151-0e10-4d12-b5e0-a752015dbfd3" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_ruai9bruai9bruai" src="https://github.com/user-attachments/assets/b770b2b7-7db3-493a-9169-c98542ed4bff" />
+
+
 7. 🚀 Performance & Smooth Gestures
 •
 Uniform Spatial Navigation: 300ms FastOutSlowInEasing slide transitions across all 4 directional axes (Left: Time Away, Right: RSS Feed, Down/Up: Six Apps & All Apps).
