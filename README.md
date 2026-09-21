@@ -1,10 +1,16 @@
 Free launcher
-<img width="1254" height="1254" alt="free launcher icon" src="https://github.com/user-attachments/assets/c54363d8-a699-481a-b5ab-ef705061a60f" />
+<img width="512" height="512" alt="free launcher icon" src="https://github.com/user-attachments/assets/c54363d8-a699-481a-b5ab-ef705061a60f" />
 
 
-![Uploading Gemini_Generated_Image_vzzvhpvzzvhpvzzv.png…]()
-<img width="1536" height="2752" alt="Gemini_Generated_Image_ruai9bruai9bruai" src="https://github.com/user-attachments/assets/31f16648-a080-49ed-a090-4313fa2b4895" />
-<img width="1536" height="2752" alt="Gemini_Generated_Image_8tjuhx8tjuhx8tju" src="https://github.com/user-attachments/assets/04230809-9bf1-4de0-a23f-0f20b7eabfc0" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_czbkcczbkcczbkcc" src="https://github.com/user-attachments/assets/3f56f0fd-ecac-462d-8d6d-ac4d61aeb611" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_f96nskf96nskf96n" src="https://github.com/user-attachments/assets/d13cec20-bd67-4f4e-9ad0-905dec964db4" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_bsikpgbsikpgbsik" src="https://github.com/user-attachments/assets/f937a5d5-f00e-4504-b60c-ea0418652ba1" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_vzzvhpvzzvhpvzzv" src="https://github.com/user-attachments/assets/150d3f34-2cab-46a8-b137-bc80603e635e" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_ruai9bruai9bruai" src="https://github.com/user-attachments/assets/43d5014b-01aa-499a-8289-f871f8a65f55" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_8tjuhx8tjuhx8tju" src="https://github.com/user-attachments/assets/c413cb34-1e0a-438d-88e6-9078bec8a29d" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_6krhh36krhh36krh" src="https://github.com/user-attachments/assets/47e3fb60-2284-4cd1-b08f-c565800e154e" />
+<img width="1536" height="2752" alt="Gemini_Generated_Image_s8q4oas8q4oas8q4" src="https://github.com/user-attachments/assets/b9779bd5-0261-47fa-8d71-01da32e3298b" />
+
 
 
 1. 🕒 Minimalist Home Screen & Interactive Clock Canvas
